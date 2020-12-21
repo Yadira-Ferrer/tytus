@@ -1,34 +1,36 @@
-import time
-from Hash import TablaHash
+from Tytus import Tytus
 
-t = TablaHash(100000)
+tytus = Tytus()
 
-# t0 = time.time()
-for item in range(0, 100000):
-    t.insertarDato(item)
-# t1 = time.time()
+tytus.createDatabase("db1")
+tytus.createDatabase("db2")
+tytus.createDatabase("db3")
 
-# t.insertarDato(33)
-# t.insertarDato(21)
-# t.insertarDato(10)
-# t.insertarDato(12)
-# t.insertarDato(14)
-# t.insertarDato(56)
-# t.insertarDato(100)
+tytus.createTable("db1", "profesores", 3)
+tytus.createTable("db1", "estudiantes", 2)
+tytus.createTable("db2", "cursos", 3)
 
-# t.printTbl()
+tytus.alterAddPK("db1", "profesores", [0])
 
-t0 = time.time()
-t.buscar(99999)
-t1 = time.time()
-print(t1 - t0)
+print(tytus.showDatabases())
+print(tytus.showTables("db1"))
+print(tytus.showTables("db2"))
+print(tytus.showTables("db4"))
 
-"""print(20%7)
-print(33%7)
-print(21%7)
-print(10%7)
-print(12%7)
-print(14%7)
-print(56%7)
-print(100%7)
-"""
+print("============Datos de Extract Table==============================")
+try:
+    for i in tytus.extractTable("db1","profesores"):
+        print(i)
+except:
+    print("None")
+
+print("============Datos de Extract Range Table==============================")
+try:
+    c=0
+    for i in tytus.extractRangeTable("db1","profesores",1,"Ta","o"):
+        print(i)
+        c+=1
+    if c == 0:
+        print("[ ]")    
+except:
+    print("None")

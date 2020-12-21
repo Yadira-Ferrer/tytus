@@ -1,6 +1,9 @@
+from os import error
 from ply import *
 
-from reportes.error import Error
+from reportes.error import *
+from Instrucciones.Excepcion import Excepcion
+
 
 # Construyendo el analizador léxico y sintactico
 
@@ -9,8 +12,10 @@ from reportes.error import Error
 # NOMBRE QUE IDENTIFICA A CADA TOKEN
 
 
-lista_errores_lexico = []
 
+lista_errores_lexico=[]
+global columna
+columna=0
 
 reservadas = (
 
@@ -19,20 +24,20 @@ reservadas = (
     'BETWEEN',
     'LIKE',
     'IN',
-    'TYPE',
-    'ENUM', 'IS', 'ISNULL', 'NOTNULL', 'SHOW', 'DATABASES', 'USE', 'RENAME', 'TO', 'OWNER', 'CURRENT_USER', 'SESSION_USER',
-    'IF', 'EXISTS', 'MODE', 'REPLACE', 'DEFAULT', 'UNIQUE', 'CONSTRAINT', 'CHECK',
-
+    'TYPE', 'INHERITS',
+    'ENUM', 'IS', 'SHOW', 'DATABASES', 'USE', 'RENAME', 'TO', 'OWNER', 'CURRENT_USER', 'SESSION_USER',
+    'IF', 'EXISTS', 'MODE', 'REPLACE', 'DEFAULT', 'UNIQUE', 'CONSTRAINT', 'CHECK', 'DISTINCT',
     # NUMERIC TYPES
-    'SMALLINT', 'INTEGER', 'BIGINT', 'NUMERIC', 'REAL', 'PRECISION', 'MONEY',  
-    'INT2', 'INT8', 'FLOAT4', 'FLOAT8', 
-
+    'SMALLINT', 'INTEGER', 'BIGINT', 'NUMERIC', 'REAL', 'PRECISION', 'MONEY', 
     # CHARACTER TYPES
     'CHARACTER', 'VARYING', 'TEXT',
-  
     # DATE/TIME TYPES
     'TIMESTAMP', 'TIME', 'INTERVAL',
-
+    #PARA FECHAS
+    'EXTRACT', 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND',
+    'NOW', 'DATE_PART','CURRENT_DATE', 'CURRENT_TIME',
+    # BOOLEAN TYPE
+    'BOOLEAN', 'TRUE', 'FALSE',
     # OPERADORES LOGICOS
     'AND', 'OR', 'NOT',
     # SENTENCIAS DML
@@ -58,11 +63,11 @@ reservadas = (
     'LENGTH', 'SUBSTRING', 'TRIM', 'GET_BYTE', 'MD5', 'SET_BYTE', 
     'SHA256', 'SUBSTR', 'CONVERT', 'ENCODE', 'DECODE',
     # TRIGONOMETRIC FUNCTIONS
-    'ACOS', 'ACOSD', 'ASIND', 'ATAN', 'ATAND', 'ATAN2', 'ATAN2D', 
+    'ACOS', 'ACOSD', 'ASIN', 'ASIND', 'ATAN', 'ATAND', 'ATAN2', 'ATAN2D', 
     'COS', 'COSD', 'COT', 'COTD', 'SIN', 'SIND', 'TAN', 'TAND', 'SINH',
     'COSH', 'TANH', 'ASINH', 'ACOSH', 'ATANH',
     # SORTING ROWS
-    'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC',
+    'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
     #EXPRESSIONS
     'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
     #LIMIT AND OFFSET
@@ -124,12 +129,13 @@ t_DIVIDIDO = r'/'
 t_EXPONENCIACION = r'\^'
 t_MODULO = r'%'
 # OPERADORES RELACIONALES
+t_DISTINTO = r'\<\>'
 t_IGUAL = r'\='
 t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
-t_MAYOR_IGUALQ = r'>='
-t_MENOR_IGUALQ = r'<='
-t_DISTINTO = r'<>'
+t_MAYOR_IGUALQ = r'\>\='
+t_MENOR_IGUALQ = r'\<\='
+
 
 
 # EXPRESIONES REGULARES CON ESTADOS
@@ -169,11 +175,12 @@ def t_ID(t):
     if (t.value.upper()) in reservadas:
         #print("esto es una palabra reservada: " + t.value)
         #print("llego aqui")
+        t.value= t.value.upper()
         t.type = t.value.upper()
         #print(t.type)
     else:
         t.type = 'ID'
-
+        
     return t
 
 
@@ -202,43 +209,32 @@ def t_COMENTARIO_SIMPLE(t):
 
 def t_BLANCO(t):
     r' |\t'
+
+
+
+def t_NEWLINE(t):
+    r'\n+'
+    #t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     global columna
-    if t.value == '\t':
+    columna = lexer.lexpos
 
-        columna = columas(columna+8)
-    else:
-
-        columna = columas(columna)
-
+def columas(args):
+    valor = lexer.lexpos-args
+    return valor
 
 # Caracteres ignorados
 t_ignore = "\r"
 
 
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += t.value.count("\n")
-    global columna
-    columna = 0
-
-
-global columna
-columna = 0
-
-
-def columas(args):
-    columna = args + 1
-    return columna
-
-
 def t_error(t):
-    global lista_errores_lexico
-    print("Illegal character '%s'" % t.value[0])
-    print(t.value)
-    print("fila ", t.lexer.lineno)
-    print("Columna ", columas(columna))
+    global columna
+    #print("Illegal character '%s'" % t.value[0])
+    #print(t.value)
+    #print("fila ", t.lexer.lineno)
+    #print("Columna ", columas(columna))
     col = columas(columna)
-    dato = Error("Error Lexico", t.value, t.lexer.lineno, col)
+    dato = Excepcion(0,"Error Lexico", f"El Simbolo << {t.value[0]} >> No Pertenece al Lenguaje", t.lexer.lineno, col)
     lista_errores_lexico.append(dato)
     t.lexer.skip(1)
 

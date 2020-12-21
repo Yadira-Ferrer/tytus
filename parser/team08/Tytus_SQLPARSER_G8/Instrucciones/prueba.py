@@ -1,14 +1,16 @@
 #-------------------------------
 print("FUNCTION BINARYSTRING")
-import FunctionBinaryString.Convert
+#import FunctionBinaryString.Convert
+from Instrucciones.FunctionBinaryString.Decode import *
+'''
 import FunctionBinaryString.Decode
 import FunctionBinaryString.Encode
 import FunctionBinaryString.GetByte
 import FunctionBinaryString.Length
 import FunctionBinaryString.Md5
-import FunctionBinaryString.SetByte
+#import FunctionBinaryString.SetByte
 import FunctionBinaryString.Sha256
-import FunctionBinaryString.Substr
+#import FunctionBinaryString.Substr
 import FunctionBinaryString.Substring
 import FunctionBinaryString.Trim
 
@@ -57,3 +59,4 @@ import FunctionTrigonometric.Sinh
 import FunctionTrigonometric.Tan
 import FunctionTrigonometric.Tanh
 print("hola")
+'''

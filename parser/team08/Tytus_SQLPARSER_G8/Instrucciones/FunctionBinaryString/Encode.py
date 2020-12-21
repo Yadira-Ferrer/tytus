@@ -8,9 +8,10 @@ class Encode(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         print("ENCODE")
-        print(self.valor.encode('base64','strict'))
-        return self.valor.encode('base64','strict')
-
+        #print(self.valor.encode('base64','strict'))
+        #return self.valor.encode('base64','strict')
+'''
 instruccion = Encode("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
